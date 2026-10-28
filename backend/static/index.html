@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ticket Analyzer</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 16px; }
+    textarea { width: 100%; min-height: 120px; font: inherit; padding: 8px; box-sizing: border-box; }
+    button { margin-top: 8px; padding: 8px 16px; font: inherit; cursor: pointer; }
+    input { font: inherit; padding: 8px; }
+    h2 { margin-top: 40px; }
+    #result, #greet-result { margin-top: 20px; padding: 12px; border-radius: 6px; background: #f3f4f6; }
+    .error { color: #b91c1c; }
+    .status { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; color: #4b5563; }
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; background: #9ca3af; }
+    .status.alive .status-dot { background: #22c55e; animation: blink 1.2s ease-in-out infinite; }
+    .status.down .status-dot { background: #ef4444; }
+    @keyframes blink {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+      50% { opacity: 0.4; box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Ticket Analyzer</h1>
+  <div id="server-status" class="status">
+    <span class="status-dot"></span>
+    <span id="server-status-text">Checking server...</span>
+  </div>
+
+  <div id="app" hidden>
+  <form id="ticket-form">
+    <label for="ticket-text">Describe your issue:</label>
+    <textarea id="ticket-text" required placeholder="e.g. I can't log in to my account"></textarea>
+    <button type="submit">Analyze</button>
+  </form>
+  <div id="result" hidden></div>
+
+  <h2>Greeting</h2>
+  <label for="greet-name">Your name:</label>
+  <input id="greet-name" type="text" placeholder="e.g. Elisa">
+  <button type="button" id="greet-button">Greet</button>
+  <div id="greet-result" hidden></div>
+  </div>
+
+  <script>
+    const app = document.getElementById("app");
+    const serverStatus = document.getElementById("server-status");
+    const serverStatusText = document.getElementById("server-status-text");
+
+    //checks /health and only renders the forms once the server answers.
+    async function checkHealth() {
+      try {
+        const response = await fetch("/health");
+        const data = await response.json();
+        if (!response.ok || data.status !== "ok") {
+          throw new Error("unhealthy");
+        }
+        serverStatus.className = "status alive";
+        serverStatusText.textContent = "Server is alive";
+        app.hidden = false;
+      } catch (error) {
+        serverStatus.className = "status down";
+        serverStatusText.textContent = "Server is not responding";
+      }
+    }
+
+    checkHealth();
+    setInterval(checkHealth, 10000);
+
+    const greetName = document.getElementById("greet-name");
+    const greetResult = document.getElementById("greet-result");
+
+    document.getElementById("greet-button").addEventListener("click", async () => {
+      const name = greetName.value.trim();
+      greetResult.hidden = false;
+      greetResult.className = "";
+
+      if (!name) {
+        greetResult.className = "error";
+        greetResult.textContent = "Please enter a name.";
+        return;
+      }
+
+      try {
+        const response = await fetch(`/greet/${encodeURIComponent(name)}`);
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        greetResult.textContent = await response.text();
+      } catch (error) {
+        greetResult.className = "error";
+        greetResult.textContent = error.message;
+      }
+    });
+
+    const form = document.getElementById("ticket-form");
+    const textInput = document.getElementById("ticket-text");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      result.hidden = false;
+      result.textContent = "Analyzing...";
+
+      try {
+        const response = await fetch("/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: textInput.value }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        result.innerHTML = "";
+        for (const [label, value] of [
+          ["Category", data.category],
+          ["Character count", data.character_count],
+          ["Original", data.original],
+        ]) {
+          const line = document.createElement("p");
+          line.innerHTML = `<strong>${label}:</strong> `;
+          line.append(String(value));
+          result.append(line);
+        }
+      } catch (error) {
+        result.innerHTML = "";
+        const message = document.createElement("p");
+        message.className = "error";
+        message.textContent = error.message;
+        result.append(message);
+      }
+    });
+  </script>
+</body>
+</html>
