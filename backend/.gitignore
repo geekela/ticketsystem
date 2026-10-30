@@ -11,3 +11,7 @@ wheels/
 
 # Test cache
 .pytest_cache/
+
+# Secrets
+.env
+.env.*

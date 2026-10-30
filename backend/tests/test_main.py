@@ -9,6 +9,12 @@ from main import app, classify_ticket
 client = TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def no_mistral_key(monkeypatch):
+    """Force the keyword fallback so these tests never call the real API."""
+    monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
+
+
 # --- classify_ticket -------------------------------------------------------
 
 
@@ -146,6 +152,7 @@ def test_analyze_returns_category_and_character_count():
         "original": "I want a refund",
         "character_count": 15,
         "category": "Billing",
+        "source": "keywords",
     }
 
 
@@ -186,7 +193,12 @@ def test_analyze_rejects_invalid_body_with_422(payload):
 def test_analyze_ignores_extra_fields():
     response = client.post("/analyze", json={"text": "hi", "priority": "high"})
     assert response.status_code == 200
-    assert response.json() == {"original": "hi", "character_count": 2, "category": "Other"}
+    assert response.json() == {
+        "original": "hi",
+        "character_count": 2,
+        "category": "Other",
+        "source": "keywords",
+    }
 
 
 def test_analyze_rejects_non_json_body_with_422():
