@@ -8,3 +8,10 @@ node_modules/
 
 # OS
 .DS_Store
+
+# Impeccable local artifacts
+.impeccable/config.local.json
+.impeccable/hook.cache.json
+.impeccable/mocks/
+.impeccable/questions/
+.impeccable/review/
