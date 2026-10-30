@@ -1,0 +1,16 @@
+{
+  "name": "ticketsystem",
+  "private": true,
+  "scripts": {
+    "setup": "pnpm run setup:backend && pnpm run setup:frontend",
+    "setup:backend": "cd backend && uv sync",
+    "setup:frontend": "pnpm --dir frontend install",
+    "dev": "concurrently --kill-others-on-fail --names backend,frontend --prefix-colors blue,magenta \"pnpm:dev:backend\" \"pnpm:dev:frontend\"",
+    "dev:backend": "cd backend && uv run fastapi dev main.py --host 127.0.0.1 --port 8000",
+    "dev:frontend": "pnpm --dir frontend dev",
+    "test": "cd backend && uv run pytest -q"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
