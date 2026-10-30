@@ -31,6 +31,8 @@
   --fs-lg: 1rem;
   --fs-xl: 1.375rem;
 
+  --seam: var(--board-edge);
+
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   color-scheme: light;
@@ -116,20 +118,25 @@ kbd {
   padding: 0 24px;
   background: var(--ink);
   color: var(--flap);
-  border-bottom: 3px solid var(--signal);
+  border-bottom: 1px solid rgba(244, 246, 250, 0.24);
 }
 
 .topbar h1 {
-  font: 600 1.0625rem / 1 var(--label);
+  font: 600 var(--fs-lg) / 1 var(--label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.clock {
+  margin-left: auto;
+  color: var(--flap);
+  font: 600 var(--fs-lg) / 1 var(--text);
 }
 
 .status {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left: auto;
   font-size: var(--fs-sm);
   color: var(--flap-dim);
 }
@@ -142,8 +149,8 @@ kbd {
 }
 
 .status[data-state='online']::before {
-  background: var(--signal);
-  border-color: var(--signal);
+  background: var(--flap);
+  border-color: var(--flap);
 }
 
 .status[data-state='offline'] {
@@ -161,7 +168,7 @@ kbd {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(340px, 420px) 1fr;
+  grid-template-columns: clamp(340px, 30vw, 420px) 1fr;
   min-height: 0;
 }
 
@@ -198,13 +205,15 @@ kbd {
   color: var(--ink-mute);
 }
 
-.compose textarea:focus-visible {
-  outline-offset: 1px;
+.compose :focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--signal);
 }
 
 .field-meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   font-size: var(--fs-sm);
   color: var(--ink-mute);
@@ -232,10 +241,6 @@ kbd {
   transform: translateY(1px);
 }
 
-.classify:focus-visible {
-  outline-color: var(--board);
-}
-
 .classify:disabled {
   cursor: not-allowed;
   background: transparent;
@@ -243,12 +248,13 @@ kbd {
   color: var(--ink-mute);
 }
 
-/* Last result: fixed height so the pane never jumps */
+/* Last result: every state fits this height, so the pane never jumps */
 .outcome {
+  --seam: var(--paper);
   display: grid;
   align-content: center;
   gap: 8px;
-  min-height: 112px;
+  min-height: 132px;
   padding: 16px;
   border: 1px solid var(--rule);
   background: var(--paper);
@@ -294,6 +300,7 @@ kbd {
 }
 
 .legend {
+  --seam: var(--shell);
   display: grid;
   gap: 10px;
   margin-top: auto;
@@ -344,10 +351,10 @@ kbd {
   place-items: center;
   width: 26px;
   height: 36px;
-  background: var(--board-deep);
+  background: linear-gradient(#0a2756 50%, var(--board-deep) 50%);
   border: 1px solid var(--board-edge);
   color: var(--flap);
-  font: 600 1.25rem / 1 var(--label);
+  font: 600 var(--fs-xl) / 1 var(--label);
 }
 
 .flap::after {
@@ -356,7 +363,7 @@ kbd {
   inset-inline: 0;
   top: calc(50% - 0.5px);
   height: 1px;
-  background: var(--board-edge);
+  background: var(--seam);
 }
 
 .flaps[data-size='sm'] .flap {
@@ -368,17 +375,17 @@ kbd {
 .flaps[data-size='lg'] .flap {
   width: 30px;
   height: 42px;
-  font-size: 1.5rem;
+  font-size: var(--fs-xl);
 }
 
 /* Keyword fallback: outlined, never filled */
+.flaps[data-source='keywords'] {
+  --seam: var(--board);
+}
+
 .flaps[data-source='keywords'] .flap {
   background: transparent;
   border-color: var(--flap);
-}
-
-.flaps[data-source='keywords'] .flap::after {
-  background: var(--board);
 }
 
 /* On the light shell the flaps print in board blue */
@@ -386,14 +393,18 @@ kbd {
   background: var(--board);
 }
 
+.outcome .flaps[data-source='keywords'] {
+  --seam: var(--paper);
+}
+
+.legend .flaps[data-source='keywords'] {
+  --seam: var(--shell);
+}
+
 .on-shell[data-source='keywords'] .flap {
   background: transparent;
   border-color: var(--ink);
   color: var(--ink);
-}
-
-.on-shell .flap::after {
-  background: var(--shell);
 }
 
 .flaps[data-pending] .flap {
@@ -670,6 +681,21 @@ tr[data-newest] td {
 
 /* ---------- Narrow screens ---------- */
 
+@media (max-width: 1360px) {
+  .category-word {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .col-category {
+    width: 128px;
+  }
+}
+
 @media (max-width: 960px) {
   .app {
     height: auto;
@@ -724,9 +750,12 @@ tr[data-newest] td {
     padding: 8px;
   }
 
-  .filter-label span,
-  .category-word {
-    display: none;
+  .filter-label span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 
   .departures thead {

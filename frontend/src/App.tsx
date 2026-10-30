@@ -162,6 +162,20 @@ const HEALTH_LABELS: Record<Health, string> = {
   offline: "Backend unreachable",
 };
 
+function useClock(): string {
+  const [now, setNow] = useState(() => timeFormat.format(new Date()));
+
+  useEffect(() => {
+    const timer = window.setInterval(
+      () => setNow(timeFormat.format(new Date())),
+      10_000
+    );
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return now;
+}
+
 function App() {
   const [ticket, setTicket] = useState("");
   const [entries, setEntries] = useState<Entry[]>(loadSession);
@@ -170,6 +184,7 @@ function App() {
   const [freshId, setFreshId] = useState<string | null>(null);
   const ticketRef = useRef<HTMLTextAreaElement>(null);
   const health = useBackendHealth();
+  const now = useClock();
 
   const loading = entries.some((entry) => entry.analysis === null);
   const canSubmit = ticket.trim().length > 0 && !loading;
@@ -265,6 +280,9 @@ function App() {
     <div className="app">
       <header className="topbar">
         <h1>Support Ticket Analyzer</h1>
+        <time className="clock" aria-label={`Current time ${now}`}>
+          {now}
+        </time>
         <p className="status" data-state={health} role="status">
           {HEALTH_LABELS[health]}
         </p>
@@ -285,12 +303,9 @@ function App() {
             autoFocus
             spellCheck={false}
           />
-          <div className="field-meta" id="ticket-meta">
-            <span>
-              Press <kbd>{SUBMIT_KEYS}</kbd> to classify
-            </span>
-            <span>{ticket.length} chars</span>
-          </div>
+          <p className="field-meta" id="ticket-meta">
+            {ticket.length} chars
+          </p>
 
           <button
             type="button"
@@ -312,14 +327,11 @@ function App() {
             {outcome.tone === "error" && (
               <>
                 <p className="outcome-head caps">Not classified</p>
-                <p className="outcome-note" role="alert">
-                  {outcome.message}
-                </p>
+                <p className="outcome-note">{outcome.message}</p>
               </>
             )}
             {outcome.tone === "result" && (
               <>
-                <p className="outcome-head caps">Last result</p>
                 <div className="outcome-body">
                   <Flaps
                     code={codeFor(outcome.analysis.category)}
