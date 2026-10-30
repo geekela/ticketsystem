@@ -3,18 +3,29 @@
 import logging
 import os
 from pathlib import Path
-from typing import Literal
+from typing import Literal, get_args
 
+import anthropic
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse
+from dotenv import load_dotenv
 from mistralai.client import Mistral
 from mistralai.client.errors import MistralError
 from pydantic import BaseModel, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
+# Load API keys and ANALYZER from backend/.env if present. Variables already set
+# in the environment win, and a missing file is fine (keyword fallback).
+load_dotenv(Path(__file__).parent / ".env")
+
+# Which AI classifies tickets: "anthropic" (default) or "mistral".
+DEFAULT_ANALYZER = "anthropic"
+
+ANTHROPIC_DEFAULT_MODEL = "claude-opus-5-5"
+ANTHROPIC_TIMEOUT_S = 30.0
 MISTRAL_MODEL = "mistral-small-latest"
 MISTRAL_TIMEOUT_MS = 10_000
 SYSTEM_PROMPT = (
@@ -55,7 +66,7 @@ class TicketRequest(BaseModel):
 
 
 class TicketClassification(BaseModel):
-    """The structured output we ask Mistral for."""
+    """The structured output we ask the AI for."""
 
     category: Literal["Account", "Billing", "Technical", "Other"]
 
@@ -103,6 +114,59 @@ def classify_ticket(text: str) -> str:
     return DEFAULT_CATEGORY
 
 
+def get_analyzer() -> str:
+    """Return which AI to use, from the `ANALYZER` environment variable."""
+    return os.environ.get("ANALYZER", DEFAULT_ANALYZER).strip().lower()
+
+
+def get_anthropic_client() -> anthropic.Anthropic | None:
+    """Return an Anthropic client, or `None` when no API key is configured."""
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return None
+    # Organization-scoped keys must name their workspace on every request.
+    workspace_id = os.environ.get("ANTHROPIC_WORKSPACE_ID")
+    headers = {"anthropic-workspace-id": workspace_id} if workspace_id else None
+    # Fail fast for an interactive UI: one retry on 429/5xx/network errors.
+    return anthropic.Anthropic(timeout=ANTHROPIC_TIMEOUT_S, max_retries=1, default_headers=headers)
+
+
+def classify_with_anthropic(client: anthropic.Anthropic, text: str) -> str:
+    """Ask Claude for the ticket's category, validated against `TicketClassification`.
+
+    Raises `anthropic.APIError` on API or network failures, and `ValueError`
+    (including Pydantic's `ValidationError`) on a refusal or unusable output.
+    """
+    categories = list(get_args(TicketClassification.model_fields["category"].annotation))
+    response = client.beta.messages.create(
+        model=os.environ.get("ANTHROPIC_MODEL", ANTHROPIC_DEFAULT_MODEL),
+        max_tokens=2048,
+        system=SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": text}],
+        output_config={
+            # Classification doesn't need deep reasoning; low effort keeps it fast.
+            "effort": "low",
+            "format": {
+                "type": "json_schema",
+                "schema": {
+                    "type": "object",
+                    "properties": {"category": {"type": "string", "enum": categories}},
+                    "required": ["category"],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        # If a safety classifier declines, retry on Anthropic's recommended fallback model.
+        betas=["server-side-fallback-2026-07-01"],
+        fallbacks="default",
+    )
+    if response.stop_reason != "end_turn":
+        raise ValueError(f"Claude stopped with {response.stop_reason!r}")
+    reply = next((block.text for block in response.content if block.type == "text"), None)
+    if reply is None:
+        raise ValueError("Claude returned no text")
+    return TicketClassification.model_validate_json(reply).category
+
+
 def get_mistral_client() -> Mistral | None:
     """Return a Mistral client, or `None` when no API key is configured."""
     api_key = os.environ.get("MISTRAL_API_KEY")
@@ -134,15 +198,21 @@ def classify_with_mistral(client: Mistral, text: str) -> str:
 
 @app.post("/analyze")
 def analyze_ticket(ticket: TicketRequest) -> dict[str, str | int]:
-    """Classify a ticket with Mistral, falling back to keywords if unavailable."""
+    """Classify a ticket with the configured AI, falling back to keywords if unavailable."""
     category, source = classify_ticket(ticket.text), "keywords"
-    client = get_mistral_client()
-    if client is not None:
-        try:
-            category, source = classify_with_mistral(client, ticket.text), "mistral"
-        except (MistralError, httpx.HTTPError, ValueError) as exc:
-            # Only the exception type: messages can echo the ticket text.
-            logger.warning("Mistral classification failed (%s); using keywords", type(exc).__name__)
+    analyzer = get_analyzer()
+    try:
+        if analyzer == "anthropic":
+            if (client := get_anthropic_client()) is not None:
+                category, source = classify_with_anthropic(client, ticket.text), "anthropic"
+        elif analyzer == "mistral":
+            if (client := get_mistral_client()) is not None:
+                category, source = classify_with_mistral(client, ticket.text), "mistral"
+        else:
+            logger.warning("Unknown ANALYZER %r; using keywords", analyzer)
+    except (anthropic.APIError, MistralError, httpx.HTTPError, ValueError) as exc:
+        # Only the exception type: messages can echo the ticket text.
+        logger.warning("%s classification failed (%s); using keywords", analyzer, type(exc).__name__)
     return {
         "original": ticket.text,
         "character_count": len(ticket.text),

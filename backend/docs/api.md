@@ -74,6 +74,7 @@ Classifies a support ticket.
 | `original` | string | The submitted text, unchanged |
 | `character_count` | integer | Number of characters in `text` (Unicode characters, not bytes; spaces count) |
 | `category` | string | One of `Account`, `Billing`, `Technical`, `Other` |
+| `source` | string | What chose the category: `anthropic`, `mistral`, or `keywords` (fallback) |
 
 ```bash
 curl -X POST http://127.0.0.1:8000/analyze \
@@ -82,7 +83,7 @@ curl -X POST http://127.0.0.1:8000/analyze \
 ```
 
 ```json
-{"original":"I cannot log in to my account","character_count":29,"category":"Account"}
+{"original":"I cannot log in to my account","character_count":29,"category":"Account","source":"anthropic"}
 ```
 
 | Status | When |

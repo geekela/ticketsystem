@@ -5,6 +5,13 @@ type Analysis = {
   original: string;
   character_count: number;
   category: string;
+  source: "anthropic" | "mistral" | "keywords";
+};
+
+const SOURCE_LABELS: Record<Analysis["source"], string> = {
+  anthropic: "Claude (Anthropic)",
+  mistral: "Mistral AI",
+  keywords: "keyword matching",
 };
 
 function App() {
@@ -73,6 +80,10 @@ function App() {
         <section>
           <h2>Analysis Result</h2>
           <p>Category: {result.category}</p>
+          <p>
+            Classified by:{" "}
+            {SOURCE_LABELS[result.source]}
+          </p>
           <p>Characters: {result.character_count}</p>
           <p>Original: {result.original}</p>
         </section>

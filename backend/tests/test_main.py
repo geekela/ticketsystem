@@ -9,12 +9,6 @@ from main import app, classify_ticket
 client = TestClient(app)
 
 
-@pytest.fixture(autouse=True)
-def no_mistral_key(monkeypatch):
-    """Force the keyword fallback so these tests never call the real API."""
-    monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
-
-
 # --- classify_ticket -------------------------------------------------------
 
 

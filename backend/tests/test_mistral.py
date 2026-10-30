@@ -33,6 +33,7 @@ class FakeChat:
 @pytest.fixture
 def fake_chat(monkeypatch):
     """Install a fake Mistral client; tests set `reply` or `error` on it."""
+    monkeypatch.setenv("ANALYZER", "mistral")
     chat = FakeChat()
     monkeypatch.setattr(main, "get_mistral_client", lambda: SimpleNamespace(chat=chat))
     return chat

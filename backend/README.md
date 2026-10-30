@@ -33,12 +33,14 @@ curl -X POST http://127.0.0.1:8000/analyze \
 ```
 
 ```json
-{"original":"I cannot log in to my account","character_count":29,"category":"Account"}
+{"original":"I cannot log in to my account","character_count":29,"category":"Account","source":"anthropic"}
 ```
 
 ## How are tickets classified?
 
-The text is lowercased and checked for keywords, one category at a time. The first category that matches wins.
+By default the ticket is sent to Claude (`ANALYZER=anthropic`, needs `ANTHROPIC_API_KEY` in `.env`; see `.env.example`). Set `ANALYZER=mistral` to use Mistral instead. If no key is set or the AI call fails, the backend falls back to keywords, and the response's `source` field says which was used.
+
+The keyword fallback works like this: the text is lowercased and checked for keywords, one category at a time. The first category that matches wins.
 
 | Order | Category | Keywords |
 |---|---|---|
@@ -70,7 +72,13 @@ So `"refund for the crash"` is **Billing**, because Billing is checked before Te
 uv run pytest
 ```
 
-Success looks like `44 passed`. More in [Testing](docs/testing.md).
+This runs the offline tests only. To check the real Anthropic API with the key in `.env` (costs a few cents):
+
+```bash
+uv run pytest -m live -v
+```
+
+More in [Testing](docs/testing.md).
 
 ## Documentation
 

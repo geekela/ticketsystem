@@ -2,7 +2,7 @@
 
 Monorepo for the support ticket analyzer:
 
-- `backend/`: FastAPI app that classifies tickets (Mistral, with a keyword fallback). See [backend/README.md](backend/README.md).
+- `backend/`: FastAPI app that classifies tickets with Claude (Anthropic), with a keyword fallback. See [backend/README.md](backend/README.md).
 - `frontend/`: React + Vite UI.
 
 ## Setup (once)
@@ -14,7 +14,7 @@ pnpm install         # root tooling (concurrently)
 pnpm run setup       # backend deps (uv sync) + frontend deps
 ```
 
-To classify with Mistral, set `MISTRAL_API_KEY` in your environment; without it the backend uses keyword matching.
+Copy `backend/.env.example` to `backend/.env` and set `ANTHROPIC_API_KEY`. `ANALYZER` picks the AI (`anthropic`, the default, or `mistral` with `MISTRAL_API_KEY`); without a key the backend uses keyword matching.
 
 ## Run
 
@@ -32,5 +32,8 @@ Run either side alone with `pnpm dev:backend` or `pnpm dev:frontend`.
 ## Test
 
 ```sh
-pnpm test            # backend pytest suite
+pnpm test            # backend pytest suite (no network, free)
+pnpm test:live       # calls the real Anthropic API with the key in backend/.env
 ```
+
+The live tests send about 8 short tickets to Claude, so each run costs a little. They fail (rather than skip) if `ANTHROPIC_API_KEY` is missing, and they check that Claude answered, not the keyword fallback.
