@@ -36,7 +36,7 @@ pnpm test            # backend pytest suite (no network, free)
 pnpm test:live       # calls the real Anthropic API with the key in backend/.env
 ```
 
-The live tests send about 8 short tickets to Claude, so each run costs a little. They fail (rather than skip) if `ANTHROPIC_API_KEY` is missing, and they check that Claude answered, not the keyword fallback.
+The live tests make 16 short calls to Claude, so each run costs a little. Eight check classification. The other eight check follow-up questions: how many come back, that they're in the ticket's language, that they don't ask for details the ticket already gives, that instructions inside a ticket are ignored, and that re-classifying with answers works. They fail (rather than skip) if `ANTHROPIC_API_KEY` is missing, and they check that Claude answered, not the keyword or preset fallback.
 
 ### End-to-end (Playwright)
 
