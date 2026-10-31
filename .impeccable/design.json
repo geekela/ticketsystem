@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-30T19:10:00Z",
+  "title": "Design System: Support Ticket Analyzer",
+  "extensions": {
+    "colorMeta": {
+      "board": {
+        "role": "secondary",
+        "displayName": "Enamel Station Blue",
+        "canonical": "oklch(32.1% 0.113 260)",
+        "tonalRamp": [
+          "#010922",
+          "#0f2447",
+          "#254170",
+          "#3d609c",
+          "#5d82c1",
+          "#85a6dd",
+          "#afcaf9",
+          "#e6effe"
+        ]
+      },
+      "board-deep": {
+        "role": "secondary",
+        "displayName": "Board Deep",
+        "canonical": "oklch(24.0% 0.079 260)",
+        "tonalRamp": [
+          "#030b1b",
+          "#16253d",
+          "#2e4263",
+          "#48628b",
+          "#6983af",
+          "#8fa6cd",
+          "#b6caeb",
+          "#e5efff"
+        ]
+      },
+      "board-edge": {
+        "role": "secondary",
+        "displayName": "Board Edge",
+        "canonical": "oklch(18.8% 0.062 258)",
+        "tonalRamp": [
+          "#040b18",
+          "#192538",
+          "#32435c",
+          "#4d6282",
+          "#6d84a5",
+          "#93a6c4",
+          "#bacae3",
+          "#e5efff"
+        ]
+      },
+      "cell-upper": {
+        "role": "secondary",
+        "displayName": "Cell Upper",
+        "canonical": "oklch(28.3% 0.092 260)",
+        "tonalRamp": [
+          "#020a1e",
+          "#132541",
+          "#2b4268",
+          "#446192",
+          "#6483b6",
+          "#8ba6d3",
+          "#b3cbf0",
+          "#e6efff"
+        ]
+      },
+      "flap": {
+        "role": "neutral",
+        "displayName": "Flap White",
+        "canonical": "oklch(97.3% 0.006 265)",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#242528",
+          "#404245",
+          "#5f6165",
+          "#808286",
+          "#a3a5a9",
+          "#c7c9cd",
+          "#eceef2"
+        ]
+      },
+      "flap-dim": {
+        "role": "neutral",
+        "displayName": "Flap Dim",
+        "canonical": "oklch(86.8% 0.030 263)",
+        "tonalRamp": [
+          "#080b11",
+          "#20252f",
+          "#3b424f",
+          "#596272",
+          "#798394",
+          "#9da5b4",
+          "#c2c9d6",
+          "#e9eff9"
+        ]
+      },
+      "signal": {
+        "role": "primary",
+        "displayName": "Signal Yellow",
+        "canonical": "oklch(86.5% 0.177 90)",
+        "tonalRamp": [
+          "#110a00",
+          "#2f2401",
+          "#524000",
+          "#775e04",
+          "#9d7e17",
+          "#c6a023",
+          "#e5c66f",
+          "#feeebf"
+        ]
+      },
+      "signal-lift": {
+        "role": "primary",
+        "displayName": "Signal Lift",
+        "canonical": "oklch(88.6% 0.170 94)",
+        "tonalRamp": [
+          "#100a00",
+          "#2e2400",
+          "#4f4106",
+          "#735f0f",
+          "#9b8008",
+          "#c1a32f",
+          "#e1c874",
+          "#feeeb9"
+        ]
+      },
+      "shell": {
+        "role": "neutral",
+        "displayName": "Cool Shell",
+        "canonical": "oklch(94.5% 0.009 258)",
+        "tonalRamp": [
+          "#090b0f",
+          "#22252a",
+          "#3f4247",
+          "#5e6167",
+          "#7f8388",
+          "#a2a5ab",
+          "#c5c9cf",
+          "#ebeff5"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(20.4% 0.011 261)",
+        "tonalRamp": [
+          "#090b10",
+          "#22252b",
+          "#3f4248",
+          "#5e6168",
+          "#7f8389",
+          "#a1a5ac",
+          "#c5c9d0",
+          "#eaeff6"
+        ]
+      },
+      "ink-mute": {
+        "role": "neutral",
+        "displayName": "Ink Mute",
+        "canonical": "oklch(44.4% 0.031 261)",
+        "tonalRamp": [
+          "#080b12",
+          "#20252f",
+          "#3b424f",
+          "#586272",
+          "#798394",
+          "#9da6b5",
+          "#c2cad6",
+          "#e9eff9"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "oklch(84.0% 0.020 260)",
+        "tonalRamp": [
+          "#090b0f",
+          "#21252b",
+          "#3d424b",
+          "#5b626c",
+          "#7c838e",
+          "#9fa5af",
+          "#c4c9d2",
+          "#ebeff5"
+        ]
+      },
+      "alert": {
+        "role": "tertiary",
+        "displayName": "Alert Red",
+        "canonical": "oklch(45.9% 0.175 26)",
+        "tonalRamp": [
+          "#200000",
+          "#4b0307",
+          "#7b1417",
+          "#aa2d2c",
+          "#d2534d",
+          "#ee8078",
+          "#fdb4ac",
+          "#ffe9e6"
+        ]
+      },
+      "alert-wash": {
+        "role": "tertiary",
+        "displayName": "Alert Wash",
+        "canonical": "oklch(94.9% 0.020 14)",
+        "tonalRamp": [
+          "#120809",
+          "#2e2122",
+          "#4c3e3f",
+          "#6c5d5e",
+          "#8e7e7f",
+          "#b1a0a1",
+          "#d6c4c5",
+          "#fbe9ea"
+        ]
+      },
+      "flap-hair": {
+        "role": "neutral",
+        "displayName": "Flap Hairline",
+        "canonical": "rgba(244, 246, 250, 0.2)",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#242528",
+          "#404245",
+          "#5f6165",
+          "#808286",
+          "#a3a5a9",
+          "#c7c9cd",
+          "#eceef2"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "masthead": {
+        "displayName": "Masthead",
+        "purpose": "Product name in the top bar only."
+      },
+      "flap": {
+        "displayName": "Flap",
+        "purpose": "Glyphs inside split-flap cells (0.9375rem in small cells)."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Filter counts and the outcome category name."
+      },
+      "row": {
+        "displayName": "Row",
+        "purpose": "Board table cells; time cells at weight 500."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Root text and the ticket textarea."
+      },
+      "body-sm": {
+        "displayName": "Body Small",
+        "purpose": "Meta, notes, status, via lines, legend."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Tracked uppercase field labels, section headings, filter tabs, VIA codes."
+      },
+      "label-sm": {
+        "displayName": "Label Small",
+        "purpose": "Column headers, panel headings, NEW tag."
+      }
+    },
+    "shadows": [
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 3px #ffcc00",
+        "purpose": "Signal ring paired with a 2px ink outline on compose-pane focus. Not elevation; the system has none."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "System easing for the flap flip and button state."
+      },
+      {
+        "name": "flap-in",
+        "value": "420ms, rotateX(-88deg) + brightness(1.6) to rest, 70ms stagger per cell",
+        "purpose": "Newest result's category flips into place once."
+      },
+      {
+        "name": "flap-wait",
+        "value": "900ms steps(3, end) infinite",
+        "purpose": "Pending cells pulse while classifying."
+      },
+      {
+        "name": "button-state",
+        "value": "background-color 120ms",
+        "purpose": "Primary button hover lift."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation: none; transition: none",
+        "purpose": "All flips, pulses, and transitions are removed under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1360px"
+      },
+      {
+        "name": "stack",
+        "value": "960px"
+      },
+      {
+        "name": "narrow",
+        "value": "640px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button (Classify)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single signal-yellow action per surface, label left and keyboard hint right.",
+      "html": "<button class=\"ds-classify\"><span>Classify</span><kbd class=\"ds-kbd\">⌘ ↵</kbd></button>",
+      "css": ":host{--board:#0b2f6b;--board-deep:#061d44;--board-edge:#02122e;--flap:#f4f6fa;--flap-dim:#c9d4e8;--flap-hair:rgba(244,246,250,0.2);--signal:#ffcc00;--shell:#e9edf3;--paper:#fff;--ink:#14171c;--ink-mute:#4a5465;--rule:#c3cbd8;--alert:#a3141c;--alert-wash:#fbe9ea;--text:'Barlow','Helvetica Neue',Arial,sans-serif;--label:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;--ease-out:cubic-bezier(0.16,1,0.3,1)} .ds-classify{display:flex;align-items:center;justify-content:space-between;width:320px;height:48px;padding:0 16px;border:2px solid var(--ink);border-radius:0;background:var(--signal);color:var(--ink);font:600 1rem/1 var(--text);cursor:pointer;transition:background-color 120ms var(--ease-out)} .ds-classify:hover{background:#ffd633} .ds-classify:active{transform:translateY(1px)} .ds-classify:focus-visible{outline:2px solid var(--ink);outline-offset:3px;box-shadow:0 0 0 3px var(--signal)} .ds-kbd{font:500 0.8125rem/1 var(--text);border:1px solid currentColor;padding:3px 6px 2px}"
+    },
+    {
+      "name": "Primary Button, disabled",
+      "kind": "button",
+      "refersTo": "button-primary-disabled",
+      "description": "Empty ticket or request in flight: outline only.",
+      "html": "<button class=\"ds-classify-off\" disabled><span>Classify</span><kbd class=\"ds-kbd\">⌘ ↵</kbd></button>",
+      "css": ":host{--board:#0b2f6b;--board-deep:#061d44;--board-edge:#02122e;--flap:#f4f6fa;--flap-dim:#c9d4e8;--flap-hair:rgba(244,246,250,0.2);--signal:#ffcc00;--shell:#e9edf3;--paper:#fff;--ink:#14171c;--ink-mute:#4a5465;--rule:#c3cbd8;--alert:#a3141c;--alert-wash:#fbe9ea;--text:'Barlow','Helvetica Neue',Arial,sans-serif;--label:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;--ease-out:cubic-bezier(0.16,1,0.3,1)} .ds-classify-off{display:flex;align-items:center;justify-content:space-between;width:320px;height:48px;padding:0 16px;border:2px solid var(--rule);border-radius:0;background:transparent;color:var(--ink-mute);font:600 1rem/1 var(--text);cursor:not-allowed} .ds-kbd{font:500 0.8125rem/1 var(--text);border:1px solid currentColor;padding:3px 6px 2px}"
+    },
+    {
+      "name": "Text Button (on board)",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Secondary board action such as Clear board.",
+      "html": "<div class=\"ds-board-bg\"><button class=\"ds-text-btn\">Clear board</button></div>",
+      "css": ":host{--board:#0b2f6b;--board-deep:#061d44;--board-edge:#02122e;--flap:#f4f6fa;--flap-dim:#c9d4e8;--flap-hair:rgba(244,246,250,0.2);--signal:#ffcc00;--shell:#e9edf3;--paper:#fff;--ink:#14171c;--ink-mute:#4a5465;--rule:#c3cbd8;--alert:#a3141c;--alert-wash:#fbe9ea;--text:'Barlow','Helvetica Neue',Arial,sans-serif;--label:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;--ease-out:cubic-bezier(0.16,1,0.3,1)} .ds-board-bg{background:var(--board);padding:16px} .ds-text-btn{padding:4px 0;border:0;background:none;color:var(--flap-dim);font:400 0.8125rem/1.45 var(--text);text-decoration:underline;text-underline-offset:3px;cursor:pointer} .ds-text-btn:hover{color:var(--flap)} .ds-text-btn:focus-visible{outline:3px solid var(--signal);outline-offset:2px}"
+    },
+    {
+      "name": "Ticket Field",
+      "kind": "input",
+      "refersTo": "input-ticket",
+      "description": "Paper textarea with ink border and signal focus ring, on the shell.",
+      "html": "<div class=\"ds-shell\"><label class=\"ds-caps\" for=\"ds-t\">Ticket</label><textarea id=\"ds-t\" class=\"ds-ticket\" placeholder=\"Paste the customer's message here\"></textarea><p class=\"ds-meta\">0 chars</p></div>",
+      "css": ":host{--board:#0b2f6b;--board-deep:#061d44;--board-edge:#02122e;--flap:#f4f6fa;--flap-dim:#c9d4e8;--flap-hair:rgba(244,246,250,0.2);--signal:#ffcc00;--shell:#e9edf3;--paper:#fff;--ink:#14171c;--ink-mute:#4a5465;--rule:#c3cbd8;--alert:#a3141c;--alert-wash:#fbe9ea;--text:'Barlow','Helvetica Neue',Arial,sans-serif;--label:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;--ease-out:cubic-bezier(0.16,1,0.3,1)} .ds-shell{display:flex;flex-direction:column;gap:12px;background:var(--shell);padding:24px;width:340px;color:var(--ink)} .ds-caps{font:600 0.8125rem/1.45 var(--label);letter-spacing:0.12em;text-transform:uppercase} .ds-ticket{min-height:160px;padding:12px 14px;border:1px solid var(--ink);border-radius:0;background:var(--paper);color:var(--ink);font:400 0.9375rem/1.5 var(--text);caret-color:var(--board);resize:vertical} .ds-ticket::placeholder{color:var(--ink-mute)} .ds-ticket:focus-visible{outline:2px solid var(--ink);outline-offset:3px;box-shadow:0 0 0 3px var(--signal)} .ds-meta{margin:0;text-align:right;font-size:0.8125rem;color:var(--ink-mute)}"
+    },
+    {
+      "name": "Filter Strip",
+      "kind": "nav",
+      "refersTo": "filter-tab",
+      "description": "Five fixed slots doubling as category counts and filter tabs; active slot fills signal yellow.",
+      "html": "<div class=\"ds-board-bg\"><div class=\"ds-filters\"><button class=\"ds-filter\" aria-pressed=\"true\"><span>All</span><span class=\"ds-count\">8</span></button><button class=\"ds-filter\" aria-pressed=\"false\"><span>ACC <i>Account</i></span><span class=\"ds-count\">3</span></button><button class=\"ds-filter\" aria-pressed=\"false\"><span>BIL <i>Billing</i></span><span class=\"ds-count\">2</span></button><button class=\"ds-filter\" aria-pressed=\"false\"><span>TEC <i>Technical</i></span><span class=\"ds-count\">2</span></button><button class=\"ds-filter\" aria-pressed=\"false\"><span>OTH <i>Other</i></span><span class=\"ds-count\">1</span></button></div></div>",
+      "css": ":host{--board:#0b2f6b;--board-deep:#061d44;--board-edge:#02122e;--flap:#f4f6fa;--flap-dim:#c9d4e8;--flap-hair:rgba(244,246,250,0.2);--signal:#ffcc00;--shell:#e9edf3;--paper:#fff;--ink:#14171c;--ink-mute:#4a5465;--rule:#c3cbd8;--alert:#a3141c;--alert-wash:#fbe9ea;--text:'Barlow','Helvetica Neue',Arial,sans-serif;--label:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;--ease-out:cubic-bezier(0.16,1,0.3,1)} .ds-board-bg{background:var(--board);padding:16px} .ds-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--flap-hair);border-bottom:1px solid var(--flap-hair)} .ds-filter{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0;padding:10px 14px;border:0;border-right:1px solid var(--flap-hair);background:none;color:var(--flap);font:600 0.8125rem/1.2 var(--label);letter-spacing:0.08em;text-transform:uppercase;text-align:left;cursor:pointer} .ds-filter:last-child{border-right:0} .ds-filter i{font-style:normal;font-weight:500;opacity:0.8} .ds-filter:hover{background:rgba(244,246,250,0.08)} .ds-filter[aria-pressed='true']{background:var(--signal);color:var(--ink)} .ds-filter:focus-visible{outline:3px solid var(--flap);outline-offset:-3px} .ds-filter[aria-pressed='true']:focus-visible{outline-color:var(--ink)} .ds-count{font:600 1.375rem/1 var(--text);letter-spacing:0;font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Split-Flap Cells",
+      "kind": "custom",
+      "refersTo": "flap-cell",
+      "description": "Signature category code: solid two-tone cells for AI answers, outlined cells for keyword guesses.",
+      "html": "<div class=\"ds-board-bg\"><span class=\"ds-flaps\"><span class=\"ds-flap\">B</span><span class=\"ds-flap\">I</span><span class=\"ds-flap\">L</span></span> <span class=\"ds-flaps ds-kw\"><span class=\"ds-flap\">A</span><span class=\"ds-flap\">C</span><span class=\"ds-flap\">C</span></span></div>",
+      "css": ":host{--board:#0b2f6b;--board-deep:#061d44;--board-edge:#02122e;--flap:#f4f6fa;--flap-dim:#c9d4e8;--flap-hair:rgba(244,246,250,0.2);--signal:#ffcc00;--shell:#e9edf3;--paper:#fff;--ink:#14171c;--ink-mute:#4a5465;--rule:#c3cbd8;--alert:#a3141c;--alert-wash:#fbe9ea;--text:'Barlow','Helvetica Neue',Arial,sans-serif;--label:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;--ease-out:cubic-bezier(0.16,1,0.3,1)} .ds-board-bg{background:var(--board);padding:16px;display:flex;gap:24px} .ds-flaps{--seam:var(--board-edge);display:inline-flex;gap:3px} .ds-flap{position:relative;display:grid;place-items:center;width:26px;height:36px;background:linear-gradient(#0a2756 50%,var(--board-deep) 50%);border:1px solid var(--board-edge);color:var(--flap);font:600 1.375rem/1 var(--label)} .ds-flap::after{content:'';position:absolute;inset-inline:0;top:calc(50% - 0.5px);height:1px;background:var(--seam)} .ds-kw{--seam:var(--board)} .ds-kw .ds-flap{background:transparent;border-color:var(--flap)}"
+    },
+    {
+      "name": "Departure Row",
+      "kind": "custom",
+      "refersTo": "flap-cell",
+      "description": "A fixed 62px board row: time, excerpt with NEW tag, flaps, classifier code, tabular count.",
+      "html": "<div class=\"ds-board-bg\"><table class=\"ds-table\"><tr class=\"ds-new\"><td class=\"ds-time\">09:42</td><td><span class=\"ds-ticket\"><span class=\"ds-ex\">Charged twice for October</span><span class=\"ds-tag\">NEW</span></span></td><td><span class=\"ds-via\">CLAUDE</span></td><td class=\"ds-num\">133</td></tr><tr><td class=\"ds-time\">09:31</td><td><span class=\"ds-ex\">refund request plz invoice wrong amount</span></td><td><span class=\"ds-via ds-via-kw\">KEYWORDS</span></td><td class=\"ds-num\">39</td></tr></table></div>",
+      "css": ":host{--board:#0b2f6b;--board-deep:#061d44;--board-edge:#02122e;--flap:#f4f6fa;--flap-dim:#c9d4e8;--flap-hair:rgba(244,246,250,0.2);--signal:#ffcc00;--shell:#e9edf3;--paper:#fff;--ink:#14171c;--ink-mute:#4a5465;--rule:#c3cbd8;--alert:#a3141c;--alert-wash:#fbe9ea;--text:'Barlow','Helvetica Neue',Arial,sans-serif;--label:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;--ease-out:cubic-bezier(0.16,1,0.3,1)} .ds-board-bg{background:var(--board);color:var(--flap);padding:16px} .ds-table{width:560px;border-collapse:collapse;font-variant-numeric:tabular-nums} .ds-table td{height:62px;padding:0 14px;border-bottom:1px solid var(--flap-hair);font:400 1rem/1.45 var(--text);white-space:nowrap} .ds-new td{background:rgba(244,246,250,0.09)} .ds-time{font-weight:500;letter-spacing:0.02em} .ds-ticket{display:flex;align-items:center;gap:10px} .ds-tag{padding:2px 6px 1px;background:var(--signal);color:var(--ink);font:600 0.75rem/1 var(--label);letter-spacing:0.14em} .ds-via{font:600 0.8125rem/1 var(--label);letter-spacing:0.14em} .ds-via-kw{padding:3px 6px 2px;border:1px dashed var(--flap)} .ds-num{text-align:right}"
+    },
+    {
+      "name": "Outcome Panel",
+      "kind": "card",
+      "refersTo": "outcome-panel",
+      "description": "Fixed-height last-result box on the shell; idle dashed, error in alert red.",
+      "html": "<div class=\"ds-shell\"><div class=\"ds-outcome\"><p class=\"ds-cat\">Account</p><p class=\"ds-via\">via Claude (Anthropic)</p></div><div class=\"ds-outcome ds-err\"><p class=\"ds-head\">Not classified</p><p class=\"ds-note\">Couldn't reach the analyzer. Check that the backend is running.</p></div></div>",
+      "css": ":host{--board:#0b2f6b;--board-deep:#061d44;--board-edge:#02122e;--flap:#f4f6fa;--flap-dim:#c9d4e8;--flap-hair:rgba(244,246,250,0.2);--signal:#ffcc00;--shell:#e9edf3;--paper:#fff;--ink:#14171c;--ink-mute:#4a5465;--rule:#c3cbd8;--alert:#a3141c;--alert-wash:#fbe9ea;--text:'Barlow','Helvetica Neue',Arial,sans-serif;--label:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;--ease-out:cubic-bezier(0.16,1,0.3,1)} .ds-shell{background:var(--shell);padding:24px;display:grid;gap:12px;width:340px;color:var(--ink)} .ds-outcome{display:grid;align-content:center;gap:8px;min-height:132px;padding:16px;border:1px solid var(--rule);border-radius:0;background:var(--paper)} .ds-outcome p{margin:0} .ds-cat{font:600 1.375rem/1 var(--text)} .ds-via{font-size:0.8125rem;color:var(--ink-mute)} .ds-err{border-color:var(--alert);background:var(--alert-wash);color:var(--alert)} .ds-head{font:600 0.75rem/1.45 var(--label);letter-spacing:0.12em;text-transform:uppercase} .ds-note{font-size:0.8125rem}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Departure Board",
+    "overview": "The screen is a Swiss/Dutch station hall. A pale, cool shell holds the working pane where a ticket is pasted; beside it hangs an enamel station-blue board that carries the session's queue as a dense departure table in flap-white type. Each classified ticket is a line on that board, and its category arrives as a three-letter code set in split-flap cells (ACC, BIL, TEC, OTH) that flip once into place. Signal yellow is the hall's only accent: it marks the one thing to press, where focus is, which filter is live, and which row is newest.\n\nDensity and steadiness are the philosophy. Rows are fixed-height, columns are fixed-width, figures are tabular, and one fixed type ramp carries all hierarchy, so the hundredth ticket of a shift lands exactly where the first did. Structure is drawn with hairlines and square edges, never with cards, shadows, or rounded pills. The classifier that answered is printed on every row; the keyword fallback is its own honest state, drawn outlined and dashed instead of filled.",
+    "keyCharacteristics": [
+      "Two grounds: cool shell for composing, station-blue board for the queue.",
+      "One accent (signal yellow), used only for action, focus, active filter, and newest marker.",
+      "Split-flap cells as the signature: solid for AI answers, outlined for keyword guesses.",
+      "Hairline rules and square corners throughout; zero elevation.",
+      "One fixed five-step type ramp with tabular figures everywhere."
+    ],
+    "rules": [
+      {
+        "name": "The One Signal Rule",
+        "body": "Yellow appears only on the primary action, the focus ring, the active filter, the NEW tag, and selection. Nothing decorative is yellow.",
+        "section": "colors"
+      },
+      {
+        "name": "The Honest Fallback Rule",
+        "body": "A keyword-matched classification is never drawn like an AI one: its flap cells are outlined with a transparent fill, and its VIA code sits in a dashed box. Solid cells mean an AI answered.",
+        "section": "colors"
+      },
+      {
+        "name": "The Lift-Not-Grey Rule",
+        "body": "No neutral grey surface fills. On the board, emphasis is a flap-white tint over the blue (8% for hover, 9% for the newest row); on the shell, the only raised surface is Paper.",
+        "section": "colors"
+      },
+      {
+        "name": "The Fixed Ramp Rule",
+        "body": "Five sizes only: 0.75, 0.8125, 0.9375, 1, 1.375rem. Hierarchy comes from weight, case, tracking, and ground, never from a new size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Tabular figures are set at the root; every time, count, and character tally aligns in columns.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hairline Rule",
+        "body": "Structure is 1px lines: Rule on the shell, Flap Hairline on the board, a full Flap White line under the column header. Borders thicken to 2px only on the primary button.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** put every category on the board as a three-letter code in split-flap cells, solid for AI and outlined for keywords.",
+      "**Do** print the classifier on every row and every result.",
+      "**Do** keep rows, columns, the outcome panel, and the filter strip fixed-size so results never shift layout.",
+      "**Do** draw structure with 1px hairlines and keep every corner square (0px).",
+      "**Do** stay inside the five-step ramp (0.75 to 1.375rem) with tabular figures.",
+      "**Do** give every flip and pulse a reduced-motion fallback of no animation."
+    ],
+    "donts": [
+      "**Don't** use Signal Yellow for anything but the primary action, focus, active filter, NEW tag, and selection.",
+      "**Don't** render the queue as cards, pills, or rounded chips; it is a table on the board.",
+      "**Don't** add elevation shadows; depth comes from ground and hairlines.",
+      "**Don't** introduce neutral grey fills; on the board use flap-white tints of 9% or less.",
+      "**Don't** draw a keyword result with a solid cell or a plain VIA code.",
+      "**Don't** add type sizes outside the fixed ramp."
+    ]
+  }
+}

@@ -1,36 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-
-type Source = "anthropic" | "mistral" | "keywords";
-
-type Analysis = {
-  original: string;
-  character_count: number;
-  category: string;
-  source: Source;
-};
-
-type Entry = {
-  id: string;
-  time: string;
-  text: string;
-  analysis: Analysis | null; // null while the request is in flight
-};
-
-type Outcome =
-  | { tone: "idle" }
-  | { tone: "result"; analysis: Analysis }
-  | { tone: "error"; message: string };
+import { ApiError, analyze, checkHealth, fetchQuestions, type Source } from "./api";
+import { Flaps, codeFor } from "./Flaps";
+import { TicketDetail } from "./TicketDetail";
+import { followUpStatus, loadSession, saveSession, type Entry, type FollowUp } from "./session";
 
 type Health = "checking" | "online" | "offline";
 
 const CATEGORIES = ["Account", "Billing", "Technical", "Other"] as const;
-
-const CATEGORY_CODES: Record<string, string> = {
-  Account: "ACC",
-  Billing: "BIL",
-  Technical: "TEC",
-  Other: "OTH",
-};
 
 const SOURCE_LABELS: Record<Source, string> = {
   anthropic: "Claude (Anthropic)",
@@ -44,12 +20,12 @@ const SOURCE_CODES: Record<Source, string> = {
   keywords: "KEYWORDS",
 };
 
-const STORAGE_KEY = "ticket-analyzer:session";
 const HEALTH_INTERVAL_MS = 15_000;
 
 const IS_MAC =
   typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
 const SUBMIT_KEYS = IS_MAC ? "⌘ ↵" : "Ctrl ↵";
+const ALT_KEY = IS_MAC ? "⌥" : "Alt";
 
 const timeFormat = new Intl.DateTimeFormat(undefined, {
   hour: "2-digit",
@@ -57,75 +33,8 @@ const timeFormat = new Intl.DateTimeFormat(undefined, {
   hourCycle: "h23",
 });
 
-function codeFor(category: string): string {
-  return CATEGORY_CODES[category] ?? category.slice(0, 3).toUpperCase();
-}
-
-function loadSession(): Entry[] {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    const entries: Entry[] = raw ? JSON.parse(raw) : [];
-    return entries.filter((entry) => entry.analysis !== null);
-  } catch {
-    return [];
-  }
-}
-
-function saveSession(entries: Entry[]) {
-  try {
-    sessionStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(entries.filter((entry) => entry.analysis !== null))
-    );
-  } catch {
-    // Storage can be unavailable (private mode); the board still works in memory.
-  }
-}
-
-function describeError(err: unknown, status?: number): string {
-  if (status === 422) {
-    return "The ticket was rejected as empty or invalid. Paste the ticket text and try again.";
-  }
-  if (status !== undefined) {
-    return `The analyzer returned an error (HTTP ${status}). Try again; if it keeps failing, check the backend log.`;
-  }
-  if (err instanceof TypeError) {
-    return `Couldn't reach the analyzer. Check that the backend is running, then press ${SUBMIT_KEYS} to retry.`;
-  }
-  return err instanceof Error ? err.message : "Something went wrong. Try again.";
-}
-
-function Flaps({
-  code,
-  source,
-  size = "md",
-  fresh = false,
-  pending = false,
-  onShell = false,
-}: {
-  code: string;
-  source?: Source;
-  size?: "sm" | "md" | "lg";
-  fresh?: boolean;
-  pending?: boolean;
-  onShell?: boolean;
-}) {
-  return (
-    <span
-      className={onShell ? "flaps on-shell" : "flaps"}
-      data-size={size}
-      data-source={source}
-      data-fresh={fresh || undefined}
-      data-pending={pending || undefined}
-      aria-hidden="true"
-    >
-      {code.split("").map((letter, index) => (
-        <span className="flap" key={index}>
-          {letter}
-        </span>
-      ))}
-    </span>
-  );
+function messageFor(err: unknown): string {
+  return err instanceof ApiError ? err.message : "Something went wrong. Try again.";
 }
 
 function useBackendHealth(): Health {
@@ -135,12 +44,8 @@ function useBackendHealth(): Health {
     let cancelled = false;
 
     async function check() {
-      try {
-        const response = await fetch("/api/health");
-        if (!cancelled) setHealth(response.ok ? "online" : "offline");
-      } catch {
-        if (!cancelled) setHealth("offline");
-      }
+      const online = await checkHealth();
+      if (!cancelled) setHealth(online ? "online" : "offline");
     }
 
     check();
@@ -179,9 +84,10 @@ function useClock(): string {
 function App() {
   const [ticket, setTicket] = useState("");
   const [entries, setEntries] = useState<Entry[]>(loadSession);
-  const [outcome, setOutcome] = useState<Outcome>({ tone: "idle" });
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("All");
   const [freshId, setFreshId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const ticketRef = useRef<HTMLTextAreaElement>(null);
   const health = useBackendHealth();
   const now = useClock();
@@ -190,6 +96,44 @@ function App() {
   const canSubmit = ticket.trim().length > 0 && !loading;
 
   useEffect(() => saveSession(entries), [entries]);
+
+  const updateEntry = useCallback((id: string, change: (entry: Entry) => Entry) => {
+    setEntries((current) => current.map((entry) => (entry.id === id ? change(entry) : entry)));
+  }, []);
+
+  const updateFollowUp = useCallback(
+    (id: string, change: (followUp: FollowUp) => FollowUp) => {
+      updateEntry(id, (entry) =>
+        entry.followUp ? { ...entry, followUp: change(entry.followUp) } : entry
+      );
+    },
+    [updateEntry]
+  );
+
+  const loadQuestions = useCallback(
+    async (id: string, text: string, category: string) => {
+      updateEntry(id, (entry) => ({
+        ...entry,
+        followUp: { status: "loading", questions: [], answers: [] },
+      }));
+      try {
+        const { questions, source } = await fetchQuestions(text, category);
+        updateFollowUp(id, () => ({
+          status: "ready",
+          questions,
+          source,
+          answers: questions.map(() => ""),
+        }));
+      } catch (err) {
+        updateFollowUp(id, (followUp) => ({
+          ...followUp,
+          status: "error",
+          error: messageFor(err),
+        }));
+      }
+    },
+    [updateEntry, updateFollowUp]
+  );
 
   const handleClassify = useCallback(async () => {
     const text = ticket;
@@ -201,38 +145,65 @@ function App() {
       ...current,
     ]);
     setFilter("All");
+    setError(null);
 
-    let status: number | undefined;
     try {
-      // Proxied to the backend by Vite (see vite.config.ts).
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-
-      if (!response.ok) {
-        status = response.status;
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const analysis: Analysis = await response.json();
-      setEntries((current) =>
-        current.map((entry) => (entry.id === id ? { ...entry, analysis } : entry))
-      );
+      const analysis = await analyze(text);
+      updateEntry(id, (entry) => ({ ...entry, analysis }));
       setFreshId(id);
-      setOutcome({ tone: "result", analysis });
+      setSelectedId(id);
       setTicket("");
+      loadQuestions(id, text, analysis.category);
     } catch (err) {
       setEntries((current) => current.filter((entry) => entry.id !== id));
-      setOutcome({ tone: "error", message: describeError(err, status) });
+      setError(messageFor(err));
     } finally {
       ticketRef.current?.focus();
     }
-  }, [ticket, loading]);
+  }, [ticket, loading, updateEntry, loadQuestions]);
+
+  async function reclassify(entry: Entry) {
+    const followUp = entry.followUp;
+    if (!entry.analysis || !followUp || followUp.reclassifying) return;
+    const answers = followUp.questions
+      .map((question, index) => ({ question, answer: followUp.answers[index]?.trim() ?? "" }))
+      .filter((item) => item.answer);
+    if (answers.length === 0) return;
+
+    const before = entry.analysis.category;
+    updateFollowUp(entry.id, (current) => ({ ...current, reclassifying: true }));
+    setError(null);
+    try {
+      const analysis = await analyze(entry.text, answers);
+      updateEntry(entry.id, (current) => ({
+        ...current,
+        analysis,
+        followUp: current.followUp && {
+          ...current.followUp,
+          reclassifying: false,
+          recheck: { before, after: analysis.category, source: analysis.source },
+        },
+      }));
+      setFreshId(entry.id);
+    } catch (err) {
+      updateFollowUp(entry.id, (current) => ({ ...current, reclassifying: false }));
+      setError(`Not re-classified. ${messageFor(err)}`);
+    }
+  }
+
+  const settled = entries.filter((entry) => entry.analysis !== null);
+  const visible = entries.filter(
+    (entry) =>
+      filter === "All" ||
+      entry.analysis === null ||
+      entry.analysis.category === filter
+  );
+  const selectable = visible.filter((entry) => entry.analysis !== null);
+  const selected =
+    settled.find((entry) => entry.id === selectedId) ?? settled[0] ?? null;
 
   // Keyboard paths: ⌘/Ctrl+Enter classifies, "/" jumps to the ticket field,
-  // Alt+1…5 switch board filters.
+  // J/K move between tickets, Alt+1…5 switch board filters.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement;
@@ -244,6 +215,12 @@ function App() {
       } else if (event.key === "/" && !typing) {
         event.preventDefault();
         ticketRef.current?.focus();
+      } else if ((event.key === "j" || event.key === "k") && !typing && selectable.length) {
+        event.preventDefault();
+        const index = selectable.findIndex((entry) => entry.id === selected?.id);
+        const step = event.key === "j" ? 1 : -1;
+        const next = Math.min(Math.max(index + step, 0), selectable.length - 1);
+        setSelectedId(selectable[next].id);
       } else if (event.altKey && /^Digit[1-5]$/.test(event.code)) {
         event.preventDefault();
         setFilter(["All", ...CATEGORIES][Number(event.code.slice(5)) - 1]);
@@ -252,28 +229,21 @@ function App() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [handleClassify]);
+  }, [handleClassify, selectable, selected]);
 
   function clearSession() {
     setEntries((current) => current.filter((entry) => entry.analysis === null));
-    setOutcome({ tone: "idle" });
+    setError(null);
     setFreshId(null);
+    setSelectedId(null);
   }
 
-  const settled = entries.filter((entry) => entry.analysis !== null);
   const counts: Record<string, number> = { All: settled.length };
   for (const category of CATEGORIES) {
     counts[category] = settled.filter(
       (entry) => entry.analysis?.category === category
     ).length;
   }
-
-  const visible = entries.filter(
-    (entry) =>
-      filter === "All" ||
-      entry.analysis === null ||
-      entry.analysis.category === filter
-  );
   const newestId = settled[0]?.id;
 
   return (
@@ -317,46 +287,36 @@ function App() {
             <kbd aria-hidden="true">{SUBMIT_KEYS}</kbd>
           </button>
 
-          <div className="outcome" data-tone={outcome.tone} aria-live="polite">
-            {outcome.tone === "idle" && (
-              <p className="outcome-note">
-                The result appears here and on the board. Which classifier
-                answered is always shown.
-              </p>
-            )}
-            {outcome.tone === "error" && (
-              <>
-                <p className="outcome-head caps">Not classified</p>
-                <p className="outcome-note">{outcome.message}</p>
-              </>
-            )}
-            {outcome.tone === "result" && (
-              <>
-                <div className="outcome-body">
-                  <Flaps
-                    code={codeFor(outcome.analysis.category)}
-                    source={outcome.analysis.source}
-                    size="lg"
-                    onShell
-                  />
-                  <div>
-                    <p className="outcome-category">
-                      {outcome.analysis.category}
-                    </p>
-                    <p className="outcome-via">
-                      via {SOURCE_LABELS[outcome.analysis.source]}
-                    </p>
-                  </div>
-                </div>
-                {outcome.analysis.source === "keywords" && (
-                  <p className="outcome-note">
-                    The AI didn't answer, so this is a keyword guess. Check it
-                    before routing.
-                  </p>
-                )}
-              </>
-            )}
+          <div className="outcome" data-tone="error" aria-live="polite" hidden={!error}>
+            <p className="outcome-head caps">Not classified</p>
+            <p className="outcome-note">{error}</p>
           </div>
+
+          {selected ? (
+            <TicketDetail
+              key={selected.id}
+              entry={selected}
+              fresh={selected.id === freshId}
+              submitKeys={SUBMIT_KEYS}
+              onAnswer={(index, answer) =>
+                updateFollowUp(selected.id, (followUp) => ({
+                  ...followUp,
+                  answers: followUp.answers.map((value, i) => (i === index ? answer : value)),
+                }))
+              }
+              onReclassify={() => reclassify(selected)}
+              onRetry={() =>
+                loadQuestions(selected.id, selected.text, selected.analysis!.category)
+              }
+            />
+          ) : (
+            <div className="outcome" data-tone="idle">
+              <p className="outcome-note">
+                The result appears here and on the board, with follow-up questions to
+                ask the customer.
+              </p>
+            </div>
+          )}
 
           <aside className="legend" aria-label="Reading the board">
             <h2 className="caps">Classifier on every row</h2>
@@ -379,7 +339,11 @@ function App() {
               </dt>
               <dd>Jump to the ticket field</dd>
               <dt>
-                <kbd>{IS_MAC ? "⌥" : "Alt"} 1–5</kbd>
+                <kbd>J</kbd> <kbd>K</kbd>
+              </dt>
+              <dd>Next or previous ticket</dd>
+              <dt>
+                <kbd>{ALT_KEY} 1–5</kbd>
               </dt>
               <dd>Switch board filter</dd>
             </dl>
@@ -407,7 +371,7 @@ function App() {
                 className="filter"
                 aria-pressed={filter === name}
                 onClick={() => setFilter(name)}
-                title={`${IS_MAC ? "⌥" : "Alt"}+${index + 1}`}
+                title={`${ALT_KEY}+${index + 1}`}
               >
                 <span className="filter-label">
                   {name === "All" ? (
@@ -430,6 +394,7 @@ function App() {
                 <col />
                 <col className="col-category" />
                 <col className="col-via" />
+                <col className="col-ask" />
                 <col className="col-chars" />
               </colgroup>
               <thead>
@@ -438,6 +403,7 @@ function App() {
                   <th scope="col">Ticket</th>
                   <th scope="col">Category</th>
                   <th scope="col">Via</th>
+                  <th scope="col">Ask</th>
                   <th scope="col" className="num chars">
                     Chars
                   </th>
@@ -446,7 +412,7 @@ function App() {
               <tbody>
                 {visible.length === 0 && (
                   <tr>
-                    <td className="empty" colSpan={5}>
+                    <td className="empty" colSpan={6}>
                       {settled.length === 0 ? (
                         <>
                           <strong>No tickets classified yet.</strong>
@@ -455,7 +421,7 @@ function App() {
                       ) : (
                         <>
                           <strong>No {filter} tickets this session.</strong>
-                          Press {IS_MAC ? "⌥" : "Alt"} 1 to show all.
+                          Press {ALT_KEY} 1 to show all.
                         </>
                       )}
                     </td>
@@ -464,12 +430,29 @@ function App() {
                 {visible.map((entry) => {
                   const { analysis } = entry;
                   const newest = entry.id === newestId;
+                  const isSelected = entry.id === selected?.id;
                   return (
-                    <tr key={entry.id} data-newest={newest || undefined}>
+                    <tr
+                      key={entry.id}
+                      data-newest={newest || undefined}
+                      data-selected={isSelected || undefined}
+                    >
                       <td className="time">{entry.time}</td>
-                      <td title={entry.text}>
+                      <td>
                         <span className="ticket">
-                          <span className="excerpt">{entry.text}</span>
+                          {analysis ? (
+                            <button
+                              type="button"
+                              className="row-button"
+                              aria-pressed={isSelected}
+                              onClick={() => setSelectedId(entry.id)}
+                              title={entry.text}
+                            >
+                              {entry.text}
+                            </button>
+                          ) : (
+                            <span className="excerpt">{entry.text}</span>
+                          )}
                           {newest && <span className="new-tag">NEW</span>}
                         </span>
                       </td>
@@ -506,6 +489,9 @@ function App() {
                             Classifying…
                           </span>
                         )}
+                      </td>
+                      <td className="ask-cell">
+                        {analysis ? followUpStatus(entry.followUp) : ""}
                       </td>
                       <td className="num chars">
                         {analysis ? analysis.character_count : entry.text.length}

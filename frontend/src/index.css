@@ -183,14 +183,18 @@ kbd {
   overflow-y: auto;
 }
 
-.compose label {
+.compose > * {
+  flex-shrink: 0;
+}
+
+.compose > label {
   font-size: var(--fs-sm);
 }
 
-.compose textarea {
+.compose > textarea {
   width: 100%;
-  min-height: 240px;
-  flex: 0 1 300px;
+  min-height: 160px;
+  flex: 0 0 200px;
   padding: 12px 14px;
   border: 1px solid var(--ink);
   border-radius: 0;
@@ -201,7 +205,7 @@ kbd {
   resize: vertical;
 }
 
-.compose textarea::placeholder {
+.compose > textarea::placeholder {
   color: var(--ink-mute);
 }
 
@@ -260,6 +264,10 @@ kbd {
   background: var(--paper);
 }
 
+.outcome[hidden] {
+  display: none;
+}
+
 .outcome-head {
   font-size: var(--fs-xs);
   color: var(--ink-mute);
@@ -297,6 +305,180 @@ kbd {
 
 .outcome[data-tone='error'] .outcome-head {
   color: var(--alert);
+}
+
+/* ---------- Selected ticket + follow-up ---------- */
+
+.detail {
+  --seam: var(--paper);
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.detail-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.detail-head h2,
+.ask-head h3 {
+  margin: 0;
+  font-size: var(--fs-xs);
+}
+
+.detail-time {
+  font-size: var(--fs-sm);
+  color: var(--ink-mute);
+}
+
+.detail-result {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.detail-category {
+  font: 600 var(--fs-xl) / 1 var(--text);
+}
+
+.detail-via,
+.detail-excerpt,
+.ask-loading p,
+.ask-note {
+  font-size: var(--fs-sm);
+  color: var(--ink-mute);
+}
+
+.detail-note,
+.ask-empty,
+.recheck {
+  font-size: var(--fs-sm);
+}
+
+.detail-excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ask {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.ask-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.compose .text-button {
+  margin-left: 0;
+  color: var(--board);
+}
+
+.compose .text-button:hover {
+  color: var(--ink);
+}
+
+.ask-loading {
+  display: grid;
+  gap: 8px;
+}
+
+.ask-bar {
+  height: 10px;
+  width: 85%;
+  background: var(--shell);
+  animation: flap-wait 1400ms ease-in-out infinite;
+}
+
+.ask-bar + .ask-bar {
+  width: 60%;
+}
+
+.ask-error {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  font-size: var(--fs-sm);
+  color: var(--alert);
+}
+
+.questions {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: question;
+}
+
+.questions li {
+  display: grid;
+  gap: 6px;
+  counter-increment: question;
+}
+
+.questions label {
+  font-weight: 500;
+}
+
+.questions label::before {
+  content: counter(question) '. ';
+  font-variant-numeric: tabular-nums;
+}
+
+.questions textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--ink-mute);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 var(--fs-md) / 1.45 var(--text);
+  caret-color: var(--board);
+  resize: vertical;
+}
+
+.questions textarea::placeholder {
+  color: var(--ink-mute);
+}
+
+.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 var(--fs-md) / 1 var(--text);
+  transition: background-color 120ms var(--ease-out);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--shell);
+}
+
+.secondary:disabled {
+  cursor: not-allowed;
+  border-color: var(--rule);
+  color: var(--ink-mute);
+}
+
+.recheck:empty {
+  display: none;
 }
 
 .legend {
@@ -390,10 +572,12 @@ kbd {
 
 /* On the light shell the flaps print in board blue */
 .on-shell .flap {
+  --seam: var(--board-edge);
   background: var(--board);
 }
 
-.outcome .flaps[data-source='keywords'] {
+.outcome .flaps[data-source='keywords'],
+.detail .flaps[data-source='keywords'] {
   --seam: var(--paper);
 }
 
@@ -402,6 +586,7 @@ kbd {
 }
 
 .on-shell[data-source='keywords'] .flap {
+  --seam: inherit;
   background: transparent;
   border-color: var(--ink);
   color: var(--ink);
@@ -600,8 +785,42 @@ kbd {
   width: 132px;
 }
 
+.col-ask {
+  width: 108px;
+}
+
 .col-chars {
   width: 84px;
+}
+
+.ask-cell {
+  color: var(--flap-dim);
+  font-size: var(--fs-sm);
+}
+
+.row-button {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-button:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.row-button:focus-visible {
+  outline-color: var(--flap);
+  outline-offset: 4px;
 }
 
 .num {
@@ -643,6 +862,14 @@ kbd {
 
 tr[data-newest] td {
   background: rgba(244, 246, 250, 0.09);
+}
+
+tr[data-selected] td {
+  background: rgba(244, 246, 250, 0.18);
+}
+
+tr[data-selected] .time {
+  font-weight: 600;
 }
 
 .ticket {
@@ -773,10 +1000,10 @@ tr[data-newest] td {
 
   .departures tr {
     display: grid;
-    grid-template-columns: 52px auto 1fr;
+    grid-template-columns: 52px auto 1fr auto;
     grid-template-areas:
-      'time cat via'
-      'ticket ticket ticket';
+      'time cat via via'
+      'ticket ticket ticket ask';
     align-items: center;
     gap: 8px 12px;
     padding: 12px 8px;
@@ -793,6 +1020,7 @@ tr[data-newest] td {
   .departures td:nth-child(2) { grid-area: ticket; }
   .departures td:nth-child(3) { grid-area: cat; }
   .departures td:nth-child(4) { grid-area: via; justify-self: end; }
+  .departures td:nth-child(5) { grid-area: ask; justify-self: end; }
 
   .departures .chars {
     display: none;
@@ -802,7 +1030,12 @@ tr[data-newest] td {
     background: rgba(244, 246, 250, 0.09);
   }
 
-  .departures tr[data-newest] td {
+  .departures tr[data-selected] {
+    background: rgba(244, 246, 250, 0.18);
+  }
+
+  .departures tr[data-newest] td,
+  .departures tr[data-selected] td {
     background: none;
   }
 
@@ -821,7 +1054,8 @@ tr[data-newest] td {
 
 @media (prefers-reduced-motion: reduce) {
   .flaps[data-fresh] .flap,
-  .flaps[data-pending] .flap::before {
+  .flaps[data-pending] .flap::before,
+  .ask-bar {
     animation: none;
   }
 

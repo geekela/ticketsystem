@@ -21,6 +21,7 @@ Open <http://127.0.0.1:8000> for the web page, or <http://127.0.0.1:8000/docs> f
 | `GET` | `/health` | Returns `{"status": "ok"}` when the server is up |
 | `GET` | `/greet/{name}` | Returns `Hello, {name}!` as plain text |
 | `POST` | `/analyze` | Classifies a ticket and returns its category and character count |
+| `POST` | `/questions` | Drafts follow-up questions to ask the customer about a ticket |
 
 The full details are in the [API reference](docs/api.md).
 
