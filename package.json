@@ -9,9 +9,13 @@
     "dev:backend": "cd backend && uv run fastapi dev main.py --host 127.0.0.1 --port 8000",
     "dev:frontend": "pnpm --dir frontend dev",
     "test": "cd backend && uv run pytest -q",
-    "test:live": "cd backend && uv run pytest -m live -v"
+    "test:live": "cd backend && uv run pytest -m live -v",
+    "test:e2e": "playwright test",
+    "test:e2e:live": "E2E_LIVE=1 playwright test",
+    "test:e2e:install": "playwright install chromium"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "concurrently": "^9.2.1"
   }
 }
