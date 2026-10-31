@@ -59,20 +59,21 @@ Hello, Elisa!
 
 ## `POST /analyze`
 
-Classifies a support ticket.
+Classifies a support ticket. Send the customer's answers to follow-up questions in `follow_ups` to re-classify the ticket with them; they are appended to the ticket text before classification.
 
 **Request body** (JSON)
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
 | `text` | string | yes | At least 1 character |
+| `follow_ups` | array of `{question, answer}` | no | Up to 10 items; both strings at least 1 character |
 
 **Response body** (JSON)
 
 | Field | Type | Description |
 |---|---|---|
 | `original` | string | The submitted text, unchanged |
-| `character_count` | integer | Number of characters in `text` (Unicode characters, not bytes; spaces count) |
+| `character_count` | integer | Number of characters in `text`, not counting `follow_ups` (Unicode characters, not bytes; spaces count) |
 | `category` | string | One of `Account`, `Billing`, `Technical`, `Other` |
 | `source` | string | What chose the category: `anthropic`, `mistral`, or `keywords` (fallback) |
 
@@ -95,6 +96,43 @@ curl -X POST http://127.0.0.1:8000/analyze \
 Extra fields in the body (e.g. `"priority": "high"`) are ignored.
 
 How the category is chosen is explained in [Architecture](architecture.md#how-classification-works).
+
+---
+
+## `POST /questions`
+
+Drafts follow-up questions for the agent to send to the customer: at most 3, only for information missing from the ticket, in the ticket's language. An empty list means nothing important is missing.
+
+Questions always come from Claude when `ANTHROPIC_API_KEY` is set, whatever `ANALYZER` says. Without a key, or if the call fails, a fixed list per category is returned (`PRESET_QUESTIONS` in `main.py`).
+
+**Request body** (JSON)
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `text` | string | yes | At least 1 character |
+| `category` | string | yes | One of `Account`, `Billing`, `Technical`, `Other` |
+
+**Response body** (JSON)
+
+| Field | Type | Description |
+|---|---|---|
+| `questions` | array of strings | 0 to 3 questions, most important first |
+| `source` | string | `anthropic`, or `preset` when the fixed list was used |
+
+```bash
+curl -X POST http://127.0.0.1:8000/questions \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I was charged twice", "category": "Billing"}'
+```
+
+```json
+{"questions":["What is the invoice number of the duplicate charge?","On which date did both charges appear?"],"source":"anthropic"}
+```
+
+| Status | When |
+|---|---|
+| `200` | Valid body |
+| `422` | Missing or empty `text`, or a `category` outside the four |
 
 ---
 
